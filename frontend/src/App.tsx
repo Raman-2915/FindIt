@@ -14,6 +14,7 @@ import ReportFound from "./pages/Items/ReportFound";
 import ItemDetails from "./pages/Items/ItemDetails";
 import MyItems from "./pages/Items/MyItems";
 import Notifications from "./pages/Notifications/Notifications";
+import Matches from "./pages/Matches/Matches";
 
 function Placeholder({ name }: { name: string }) {
   return (
@@ -43,6 +44,7 @@ function App() {
               <Route path="/found-items/create" element={<ReportFound />} />
               <Route path="/my-items" element={<MyItems />} />
               <Route path="/notifications" element={<Notifications />} />
+              <Route path="/matches" element={<Matches />} />
 
               <Route path="/my-lost-items" element={<Navigate to="/my-items" replace />} />
               <Route path="/my-found-items" element={<Navigate to="/my-items" replace />} />
