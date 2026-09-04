@@ -2,6 +2,7 @@ export interface SearchableItem {
   title?: string;
   description?: string;
   location?: string;
+  status?: string;
   category?: {
     name?: string;
   };
@@ -57,7 +58,7 @@ export function matchesItemSearch(item: SearchableItem, query: string): boolean 
   if (!normalizedQuery) return true;
 
   const searchableText = normalize(
-    [item.title, item.description, item.location, item.category?.name]
+    [item.title, item.description, item.location, item.category?.name, item.status]
       .filter(Boolean)
       .join(" "),
   );
