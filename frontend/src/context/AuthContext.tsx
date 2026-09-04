@@ -6,71 +6,91 @@ import {
   type ReactNode,
 } from "react";
 
-interface User {
-  id: string;
+import type { User } from "../types";
+import { loginUser, registerUser } from "../services/auth.api";
+
+interface RegisterData {
   name: string;
   email: string;
-  role: string;
+  password: string;
+}
+
+interface LoginData {
+  email: string;
+  password: string;
 }
 
 interface AuthContextType {
   user: User | null;
   token: string | null;
-  login: (token: string, user: User) => void;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+
+  login: (data: LoginData) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const USER_KEY = "findit_user";
+const TOKEN_KEY = "findit_token";
+
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    const storedUser = localStorage.getItem("user");
-
-    if (!storedUser) {
-      return null;
-    }
-
-    try {
-      return JSON.parse(storedUser);
-    } catch {
-      return null;
-    }
-  });
-
-  const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem("token");
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [token, setToken] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (token) {
-      localStorage.setItem("token", token);
-    } else {
-      localStorage.removeItem("token");
+    try {
+      const storedUser = localStorage.getItem(USER_KEY);
+      const storedToken = localStorage.getItem(TOKEN_KEY);
+
+      if (storedUser && storedToken) {
+        setUser(JSON.parse(storedUser));
+        setToken(storedToken);
+      }
+    } catch (error) {
+      console.error("Failed to restore authentication:", error);
+
+      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+    } finally {
+      setIsLoading(false);
     }
+  }, []);
 
-    if (user) {
-      localStorage.setItem("user", JSON.stringify(user));
-    } else {
-      localStorage.removeItem("user");
-    }
-  }, [token, user]);
+  const login = async (data: LoginData) => {
+    const response = await loginUser(data);
 
-  function login(newToken: string, newUser: User) {
-    setToken(newToken);
-    setUser(newUser);
-  }
+    localStorage.setItem(TOKEN_KEY, response.token);
+    localStorage.setItem(USER_KEY, JSON.stringify(response.user));
 
-  function logout() {
+    setToken(response.token);
+    setUser(response.user);
+  };
+
+  const register = async (data: RegisterData) => {
+    await registerUser(data);
+  };
+
+  const logout = () => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
+
     setToken(null);
     setUser(null);
-  }
+  };
 
   return (
     <AuthContext.Provider
       value={{
         user,
         token,
+        isAuthenticated: !!user && !!token,
+        isLoading,
         login,
+        register,
         logout,
       }}
     >

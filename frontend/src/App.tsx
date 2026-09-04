@@ -1,115 +1,86 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { AuthProvider } from "./context/AuthContext";
-
-import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Landing from "./pages/Landing/Landing";
+import Login from "./pages/Auth/Login";
+import Register from "./pages/Auth/Register";
+import AppLayout from "./components/layout/AppLayout";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import LostItems from "./pages/Items/LostItems";
+import ReportLost from "./pages/Items/ReportLost";
+import FoundItems from "./pages/Items/FoundItems";
+import ReportFound from "./pages/Items/ReportFound";
+import ItemDetails from "./pages/Items/ItemDetails";
+import MyItems from "./pages/Items/MyItems";
 
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import LostItems from "./pages/LostItems";
-import FoundItems from "./pages/FoundItems";
-import MyLostItems from "./pages/MyLostItems";
-import MyFoundItems from "./pages/MyFoundItems";
-import Claims from "./pages/Claims";
-import Notifications from "./pages/Notifications";
-import Reports from "./pages/Reports";
-import AdminDashboard from "./pages/AdminDashboard";
-
-import "./App.css";
+function Placeholder({ name }: { name: string }) {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <h1 className="text-3xl font-bold text-slate-900">{name}</h1>
+    </div>
+  );
+}
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
+          {/* Public */}
+          <Route path="/" element={<Landing />} />
+
           <Route path="/login" element={<Login />} />
 
           <Route path="/register" element={<Register />} />
 
-          <Route
-            path="/*"
-            element={
-              <>
-                <Navbar />
+          {/* Protected */}
+          <Route element={<ProtectedRoute />}>
+            <Route element={<AppLayout />}>
+              <Route path="/dashboard" element={<Dashboard />} />
 
-                <Routes>
-                  <Route
-                    path="/"
-                    element={<Navigate to="/dashboard" replace />}
-                  />
+              <Route path="/lost-items/:id" element={<ItemDetails />} />
 
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <ProtectedRoute>
-                        <Dashboard />
-                      </ProtectedRoute>
-                    }
-                  />
+              <Route path="/found-items/:id" element={<ItemDetails />} />
+              <Route path="/lost-items" element={<LostItems />} />
+              <Route path="/lost-items/create" element={<ReportLost />} />
 
-                  <Route path="/lost-items" element={<LostItems />} />
+              <Route path="/found-items" element={<FoundItems />} />
+              <Route path="/found-items/create" element={<ReportFound />} />
+              <Route path="/my-items" element={<MyItems />} />
 
-                  <Route path="/found-items" element={<FoundItems />} />
+              <Route
+                path="/my-lost-items"
+                element={<Placeholder name="My Lost Items" />}
+              />
 
-                  <Route
-                    path="/my-lost-items"
-                    element={
-                      <ProtectedRoute>
-                        <MyLostItems />
-                      </ProtectedRoute>
-                    }
-                  />
+              <Route
+                path="/my-found-items"
+                element={<Placeholder name="My Found Items" />}
+              />
 
-                  <Route
-                    path="/my-found-items"
-                    element={
-                      <ProtectedRoute>
-                        <MyFoundItems />
-                      </ProtectedRoute>
-                    }
-                  />
+              <Route path="/claims" element={<Placeholder name="Claims" />} />
 
-                  <Route
-                    path="/claims"
-                    element={
-                      <ProtectedRoute>
-                        <Claims />
-                      </ProtectedRoute>
-                    }
-                  />
+              <Route
+                path="/notifications"
+                element={<Placeholder name="Notifications" />}
+              />
 
-                  <Route
-                    path="/notifications"
-                    element={
-                      <ProtectedRoute>
-                        <Notifications />
-                      </ProtectedRoute>
-                    }
-                  />
+              <Route path="/reports" element={<Placeholder name="Reports" />} />
+            </Route>
+          </Route>
 
-                  <Route
-                    path="/reports"
-                    element={
-                      <ProtectedRoute>
-                        <Reports />
-                      </ProtectedRoute>
-                    }
-                  />
+          {/* Admin */}
+          <Route element={<ProtectedRoute adminOnly />}>
+            <Route element={<AppLayout />}>
+              <Route
+                path="/admin"
+                element={<Placeholder name="Admin Dashboard" />}
+              />
+            </Route>
+          </Route>
 
-                  <Route
-                    path="/admin"
-                    element={
-                      <ProtectedRoute adminOnly>
-                        <AdminDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                </Routes>
-              </>
-            }
-          />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>
