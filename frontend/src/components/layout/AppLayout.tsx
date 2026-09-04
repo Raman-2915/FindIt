@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
+import ItemReportButton from "../items/ItemReportButton";
 
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -20,6 +21,8 @@ export default function AppLayout() {
           </main>
         </div>
       </div>
+
+      <ItemReportButton />
     </div>
   );
 }
