@@ -13,6 +13,7 @@ import FoundItems from "./pages/Items/FoundItems";
 import ReportFound from "./pages/Items/ReportFound";
 import ItemDetails from "./pages/Items/ItemDetails";
 import MyItems from "./pages/Items/MyItems";
+import Notifications from "./pages/Notifications/Notifications";
 
 function Placeholder({ name }: { name: string }) {
   return (
@@ -27,56 +28,32 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <Routes>
-          {/* Public */}
           <Route path="/" element={<Landing />} />
-
           <Route path="/login" element={<Login />} />
-
           <Route path="/register" element={<Register />} />
 
-          {/* Protected */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path="/dashboard" element={<Dashboard />} />
-
               <Route path="/lost-items/:id" element={<ItemDetails />} />
-
               <Route path="/found-items/:id" element={<ItemDetails />} />
               <Route path="/lost-items" element={<LostItems />} />
               <Route path="/lost-items/create" element={<ReportLost />} />
-
               <Route path="/found-items" element={<FoundItems />} />
               <Route path="/found-items/create" element={<ReportFound />} />
               <Route path="/my-items" element={<MyItems />} />
+              <Route path="/notifications" element={<Notifications />} />
 
-              <Route
-                path="/my-lost-items"
-                element={<Placeholder name="My Lost Items" />}
-              />
-
-              <Route
-                path="/my-found-items"
-                element={<Placeholder name="My Found Items" />}
-              />
-
+              <Route path="/my-lost-items" element={<Navigate to="/my-items" replace />} />
+              <Route path="/my-found-items" element={<Navigate to="/my-items" replace />} />
               <Route path="/claims" element={<Placeholder name="Claims" />} />
-
-              <Route
-                path="/notifications"
-                element={<Placeholder name="Notifications" />}
-              />
-
               <Route path="/reports" element={<Placeholder name="Reports" />} />
             </Route>
           </Route>
 
-          {/* Admin */}
           <Route element={<ProtectedRoute adminOnly />}>
             <Route element={<AppLayout />}>
-              <Route
-                path="/admin"
-                element={<Placeholder name="Admin Dashboard" />}
-              />
+              <Route path="/admin" element={<Placeholder name="Admin Dashboard" />} />
             </Route>
           </Route>
 
