@@ -7,41 +7,53 @@ export interface SearchableItem {
   };
 }
 
-const SEARCH_SYNONYMS: Record<string, string[]> = {
-  bag: ["backpack", "handbag", "purse", "rucksack", "luggage", "satchel", "tote"],
-  backpack: ["bag", "rucksack", "schoolbag"],
-  phone: ["mobile", "smartphone", "cellphone", "iphone", "android"],
-  mobile: ["phone", "smartphone", "cellphone"],
-  laptop: ["computer", "notebook", "macbook"],
-  wallet: ["purse", "billfold"],
-  keys: ["key", "keychain"],
-  watch: ["smartwatch", "wristwatch"],
-  glasses: ["spectacles", "eyeglasses", "sunglasses"],
-  earphones: ["earbuds", "headphones", "airpods"],
-  earbuds: ["earphones", "airpods", "headphones"],
-};
+const SEARCH_GROUPS = [
+  ["bag", "backpack", "handbag", "purse", "rucksack", "schoolbag", "luggage", "satchel", "tote"],
+  ["phone", "mobile", "smartphone", "cellphone", "iphone", "android"],
+  ["laptop", "computer", "notebook", "macbook"],
+  ["wallet", "purse", "billfold"],
+  ["key", "keys", "keychain"],
+  ["watch", "smartwatch", "wristwatch"],
+  ["glasses", "spectacles", "eyeglasses", "sunglasses"],
+  ["earphone", "earphones", "earbud", "earbuds", "headphone", "headphones", "airpods"],
+];
+
+const SEARCH_SYNONYMS: Record<string, string[]> = Object.fromEntries(
+  SEARCH_GROUPS.flatMap((group) =>
+    group.map((term) => [term, group.filter((candidate) => candidate !== term)]),
+  ),
+);
 
 function normalize(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
-function tokenMatches(queryToken: string, textToken: string) {
-  if (textToken.includes(queryToken) || queryToken.includes(textToken)) {
-    return true;
-  }
-
-  const synonyms = SEARCH_SYNONYMS[queryToken] || [];
-  return synonyms.some(
-    (synonym) => textToken.includes(synonym) || synonym.includes(textToken),
-  );
+function singularize(value: string) {
+  if (value.length > 4 && value.endsWith("ies")) return `${value.slice(0, -3)}y`;
+  if (value.length > 3 && value.endsWith("s")) return value.slice(0, -1);
+  return value;
 }
 
-export function matchesItemSearch(
-  item: SearchableItem,
-  query: string,
-): boolean {
-  const normalizedQuery = normalize(query);
+function tokenMatches(queryToken: string, textToken: string) {
+  const query = singularize(queryToken);
+  const text = singularize(textToken);
 
+  if (query === text || text.includes(query) || query.includes(text)) return true;
+
+  const synonyms = SEARCH_SYNONYMS[query] || SEARCH_SYNONYMS[queryToken] || [];
+
+  return synonyms.some((synonym) => {
+    const normalizedSynonym = singularize(synonym);
+    return (
+      text === normalizedSynonym ||
+      text.includes(normalizedSynonym) ||
+      normalizedSynonym.includes(text)
+    );
+  });
+}
+
+export function matchesItemSearch(item: SearchableItem, query: string): boolean {
+  const normalizedQuery = normalize(query);
   if (!normalizedQuery) return true;
 
   const searchableText = normalize(
@@ -52,8 +64,8 @@ export function matchesItemSearch(
 
   if (!searchableText) return false;
 
-  const queryTokens = normalizedQuery.split(/\s+/);
-  const textTokens = searchableText.split(/\s+/);
+  const queryTokens = normalizedQuery.split(/\s+/).filter(Boolean);
+  const textTokens = searchableText.split(/\s+/).filter(Boolean);
 
   return queryTokens.every((queryToken) =>
     textTokens.some((textToken) => tokenMatches(queryToken, textToken)),
