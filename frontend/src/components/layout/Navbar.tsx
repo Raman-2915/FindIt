@@ -1,5 +1,5 @@
 import { Bell, Menu, Search, UserRound } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
@@ -12,10 +12,21 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
   const firstName = user?.name?.split(" ")[0] || "there";
   const [query, setQuery] = useState(new URLSearchParams(location.search).get("q") || "");
 
+  useEffect(() => {
+    setQuery(new URLSearchParams(location.search).get("q") || "");
+  }, [location.search]);
+
   function handleSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = query.trim();
-    if (!value) return;
+
+    if (!value) {
+      navigate("/lost-items");
+      return;
+    }
+
+    // The item list pages perform the general frontend search across the
+    // fields currently returned by the backend list APIs.
     navigate(`/lost-items?q=${encodeURIComponent(value)}`);
   }
 
