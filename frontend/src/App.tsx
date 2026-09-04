@@ -16,14 +16,8 @@ import MyItems from "./pages/Items/MyItems";
 import Notifications from "./pages/Notifications/Notifications";
 import Matches from "./pages/Matches/Matches";
 import Claims from "./pages/Claims/Claims";
-
-function Placeholder({ name }: { name: string }) {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <h1 className="text-3xl font-bold text-slate-900">{name}</h1>
-    </div>
-  );
-}
+import Reports from "./pages/Reports/Reports";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
 
 function App() {
   return (
@@ -47,16 +41,16 @@ function App() {
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/matches" element={<Matches />} />
               <Route path="/claims" element={<Claims />} />
+              <Route path="/reports" element={<Reports />} />
 
               <Route path="/my-lost-items" element={<Navigate to="/my-items" replace />} />
               <Route path="/my-found-items" element={<Navigate to="/my-items" replace />} />
-              <Route path="/reports" element={<Placeholder name="Reports" />} />
             </Route>
           </Route>
 
           <Route element={<ProtectedRoute adminOnly />}>
             <Route element={<AppLayout />}>
-              <Route path="/admin" element={<Placeholder name="Admin Dashboard" />} />
+              <Route path="/admin" element={<AdminDashboard />} />
             </Route>
           </Route>
 
